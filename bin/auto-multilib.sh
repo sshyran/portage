@@ -269,13 +269,20 @@ _finalize_abi_install() {
 	if [ "${ABI}" != "${first_installed_abi}" ]; then
 		__vecho ">>> Removing installed symlinks $(_get_abi_string)"
 		for i in $(find ${D} -type l) ; do
-			[[ -L "${D%/}".${first_installed_abi}/${i/${D}} ]] && rm -f ${i}
+			[[ -L "${D%/}".${first_installed_abi}/${i/${D}} ]] && [[ "${PN}" != "llvm" ]] && rm -f ${i}
 		done
 	fi
 
 	# Create wrapper symlink for *-config files
 	local i=
-	prep_ml_binaries $(find "${D}"/usr/bin "${D}"/usr/sbin "${D}"/bin "${D}"/sbin "${D}"/usr/lib/llvm/*/bin -type f -name '*-config' 2>/dev/null)
+	prep_ml_binaries $(find "${D}"/usr/bin "${D}"/usr/sbin "${D}"/bin "${D}"/sbin -type f -name '*-config' 2>/dev/null)
+	if [[ "${PN}" == "llvm" ]] ; then
+		if [[ ${ABI} == ${first_installed_abi} ]] ; then
+			prep_ml_binaries "${D}"/usr/lib/llvm/*/bin/llvm-config
+		else
+			ln -s  i686-pc-linux-gnu-llvm-config "${D}"/usr/lib/llvm/"${PV//.*}"/bin/llvm-config-x86
+		fi
+	fi
 
 	local noabi=()
 	for i in ${MULTILIB_ABIS}; do
