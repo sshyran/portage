@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 if ___eapi_has_DESTTREE_INSDESTTREE; then
@@ -190,13 +190,19 @@ dostrip() {
 }
 
 useq() {
+	___eapi_has_useq || die "'${FUNCNAME}' banned in EAPI ${EAPI}"
+
 	eqawarn "QA Notice: The 'useq' function is deprecated (replaced by 'use')"
 	use ${1}
 }
 
 usev() {
+	local nargs=1
+	___eapi_usev_has_second_arg && nargs=2
+	[[ ${#} -gt ${nargs} ]] && die "usev takes at most ${nargs} arguments"
+
 	if use ${1}; then
-		echo "${1#!}"
+		echo "${2:-${1#!}}"
 		return 0
 	fi
 	return 1
@@ -429,11 +435,15 @@ unpack() {
 				__unpack_tar "${PORTAGE_BUNZIP2_COMMAND:-${PORTAGE_BZIP2_COMMAND} -d}"
 				;;
 			7z)
-				local my_output
-				my_output="$(7z x -y "${srcdir}${x}")"
-				if [ $? -ne 0 ]; then
-					echo "${my_output}" >&2
-					die "$myfail"
+				if ___eapi_unpack_supports_7z; then
+					local my_output
+					my_output="$(7z x -y "${srcdir}${x}")"
+					if [ $? -ne 0 ]; then
+						echo "${my_output}" >&2
+						die "$myfail"
+					fi
+				else
+					__vecho "unpack ${x}: file format not recognized. Ignoring."
 				fi
 				;;
 			rar)
@@ -443,7 +453,11 @@ unpack() {
 						"suffix '${suffix}' which is unofficially supported" \
 						"with EAPI '${EAPI}'. Instead use 'rar' or 'RAR'."
 				fi
-				unrar x -idq -o+ "${srcdir}${x}" || die "$myfail"
+				if ___eapi_unpack_supports_rar; then
+					unrar x -idq -o+ "${srcdir}${x}" || die "$myfail"
+				else
+					__vecho "unpack ${x}: file format not recognized. Ignoring."
+				fi
 				;;
 			lha|lzh)
 				if ___eapi_unpack_is_case_sensitive && \
@@ -453,7 +467,11 @@ unpack() {
 						"with EAPI '${EAPI}'." \
 						"Instead use 'LHA', 'LHa', 'lha', or 'lzh'."
 				fi
-				lha xfq "${srcdir}${x}" || die "$myfail"
+				if ___eapi_unpack_supports_lha; then
+					lha xfq "${srcdir}${x}" || die "$myfail"
+				else
+					__vecho "unpack ${x}: file format not recognized. Ignoring."
+				fi
 				;;
 			a)
 				if ___eapi_unpack_is_case_sensitive && \
@@ -605,6 +623,12 @@ econf() {
 		if ___eapi_econf_passes_--disable-dependency-tracking || ___eapi_econf_passes_--disable-silent-rules || ___eapi_econf_passes_--docdir_and_--htmldir || ___eapi_econf_passes_--with-sysroot; then
 			local conf_help=$("${ECONF_SOURCE}/configure" --help 2>/dev/null)
 
+			if ___eapi_econf_passes_--datarootdir; then
+				if [[ ${conf_help} == *--datarootdir* ]]; then
+					conf_args+=( --datarootdir="${EPREFIX}"/usr/share )
+				fi
+			fi
+
 			if ___eapi_econf_passes_--disable-dependency-tracking; then
 				if [[ ${conf_help} == *--disable-dependency-tracking* ]]; then
 					conf_args+=( --disable-dependency-tracking )
@@ -614,6 +638,13 @@ econf() {
 			if ___eapi_econf_passes_--disable-silent-rules; then
 				if [[ ${conf_help} == *--disable-silent-rules* ]]; then
 					conf_args+=( --disable-silent-rules )
+				fi
+			fi
+
+			if ___eapi_econf_passes_--disable-static; then
+				if [[ ${conf_help} == *--disable-static* || \
+						${conf_help} == *--enable-static* ]]; then
+					conf_args+=( --disable-static )
 				fi
 			fi
 
@@ -840,6 +871,17 @@ __eapi6_src_install() {
 	fi
 
 	einstalldocs
+}
+
+__eapi8_src_prepare() {
+	local f
+	if ___is_indexed_array_var PATCHES ; then
+		[[ ${#PATCHES[@]} -gt 0 ]] && eapply -- "${PATCHES[@]}"
+	elif [[ -n ${PATCHES} ]]; then
+		eapply -- ${PATCHES}
+	fi
+
+	eapply_user
 }
 
 ___best_version_and_has_version_common() {

@@ -62,9 +62,12 @@ class RepomanRun(types.SimpleNamespace):
 	def _subprocess(args, cwd, env, expected, debug):
 		os.chdir(cwd)
 		os.environ.update(env)
+		portage.const.EPREFIX = env["PORTAGE_OVERRIDE_EPREFIX"]
+		if debug:
+			args = ["-vvvv"] + args
 		repoman_vars = _repoman_init(["repoman"] + args)
 		if repoman_vars.exitcode is not None:
-			return repoman_vars.exitcode
+			return {"returncode": repoman_vars.exitcode}
 		result = _repoman_scan(*repoman_vars)
 		returncode = _handle_result(*repoman_vars, result)
 		qawarnings = repoman_vars.vcs_settings.qatracker.qawarnings
@@ -311,6 +314,7 @@ pkg_preinst() {
 		}
 
 		git_test = (
+			("", RepomanRun(args=["--version"])),
 			("", RepomanRun(args=["manifest"])),
 			("", git_cmd + ("config", "--global", "user.name", committer_name,)),
 			("", git_cmd + ("config", "--global", "user.email", committer_email,)),
