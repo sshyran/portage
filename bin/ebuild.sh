@@ -247,6 +247,14 @@ inherit() {
 	ECLASS_DEPTH=$(($ECLASS_DEPTH + 1))
 	if [[ ${ECLASS_DEPTH} -gt 1 ]]; then
 		debug-print "*** Multiple Inheritence (Level: ${ECLASS_DEPTH})"
+
+		# Since ECLASS_DEPTH > 1, the following variables are locals from the
+		# previous inherit call in the call stack.
+		if [[ -n ${ECLASS} && -n ${!__export_funcs_var} ]] ; then
+			eqawarn "QA Notice: EXPORT_FUNCTIONS is called before inherit in ${ECLASS}.eclass."
+			eqawarn "For compatibility with PMS and to avoid breakage with Pkgcore, only call"
+			eqawarn "EXPORT_FUNCTIONS after inherit(s). Portage behavior may change in future."
+		fi
 	fi
 
 	local -x ECLASS

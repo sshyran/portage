@@ -18,6 +18,7 @@ from portage import _encodings, os, shutil
 from portage.env.loaders import KeyValuePairFileLoader
 from portage.localization import _
 from portage.util import shlex_split, varexpand
+from portage.util.hooks import perform_hooks
 from portage.util.path import iter_parents
 
 RCS_BRANCH = '1.1.1'
@@ -383,3 +384,17 @@ def file_archive_post_process(archive):
 		if os.path.isdir(dest) and not os.path.islink(dest):
 			_file_archive_rotate(dest)
 		os.rename(archive + '.dist.new', dest)
+
+
+def perform_conf_update_hooks(kind, conf):
+	"""Invoke the hooks in the conf-update.d directory. The notification
+	'kind' must either be 'pre-update' or 'post-update'. And 'conf' is the
+	absolute path to the configuration file that is going to be or was
+	updated."""
+	perform_hooks("conf-update.d", kind, conf)
+
+
+def perform_conf_update_session_hooks(kind):
+	"""Invoke the hooks in the conf-update-session.d directory. The
+	notification 'kind' must either be 'pre-session' or 'post-session'."""
+	perform_hooks("conf-update.d", kind)
