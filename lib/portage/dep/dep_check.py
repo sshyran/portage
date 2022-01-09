@@ -133,6 +133,29 @@ def _expand_new_virtuals(mysplit, edebug, mydbapi, mysettings, myroot="/",
 					x = Atom(x.unevaluated_atom.without_use +
 						"[%s]" % (",".join(use_tokens)))
 					x = x.evaluate_conditionals(myuse)
+			if not repoman and x.cp in mysettings.get("NO_AUTO_FLAG", "").split():
+				if x.unevaluated_atom.use is None:
+					use_tokens = []
+				else:
+					use_tokens = list(x.unevaluated_atom.use.tokens)
+				if 'abi_x86_64' in use_tokens:
+					use_tokens.remove('abi_x86_64')
+				if 'abi_x86_64(-)' in use_tokens:
+					use_tokens.remove('abi_x86_64(-)')
+				if 'abi_x86_64(-)?' in use_tokens:
+					use_tokens.remove('abi_x86_64(-)?')
+				if 'abi_x86_32' in use_tokens:
+					use_tokens.remove('abi_x86_32')
+				if 'abi_x86_32(-)' in use_tokens:
+					use_tokens.remove('abi_x86_32(-)')
+				if 'abi_x86_32(-)?' in use_tokens:
+					use_tokens.remove('abi_x86_32(-)?')
+				if use_tokens:
+					x = Atom(x.unevaluated_atom.without_use +
+						"[%s]" % (",".join(use_tokens)))
+				else:
+					x = x.unevaluated_atom.without_use
+				x = x.evaluate_conditionals(myuse)
 		mykey = x.cp
 		if not mykey.startswith("virtual/"):
 			newsplit.append(x)
