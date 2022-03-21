@@ -126,64 +126,64 @@ def _expand_new_virtuals(
             x = x._eval_qa_conditionals(use_mask, use_force)
 
         if 'force-multilib' in mysettings.features:
-			if not repoman and x.cp not in mysettings.get("NO_AUTO_FLAG", "").split():
-				multilib_flags = []
-				for multilib_abis in mysettings.get("MULTILIB_ABIS", '').split():
-					multilib_flag = 'multilib_abi_' + multilib_abis
-					if x.unevaluated_atom.use is None or \
-						x.unevaluated_atom.use.conditional is None or \
-						multilib_flag not in x.unevaluated_atom.use.conditional.enabled:
-						multilib_flags.append(multilib_flag + '?')
-				if multilib_flags:
-					if x.unevaluated_atom.use is None:
-						use_tokens = []
-					else:
-						use_tokens = list(x.unevaluated_atom.use.tokens)
-					if 'abi_x86_64' in use_tokens:
-						use_tokens[use_tokens.index('abi_x86_64')] = 'multilib_abi_amd64'
-					if 'abi_x86_64(-)' in use_tokens:
-						use_tokens[use_tokens.index('abi_x86_64(-)')] = 'multilib_abi_amd64(-)'
-					if 'abi_x86_64(-)?' in use_tokens:
-						use_tokens[use_tokens.index('abi_x86_64(-)?')] = 'multilib_abi_amd64(-)?'
-					if 'abi_x86_32' in use_tokens:
-						use_tokens[use_tokens.index('abi_x86_32')] = 'multilib_abi_x86'
-					if 'abi_x86_32(-)' in use_tokens:
-						use_tokens[use_tokens.index('abi_x86_32(-)')] = 'multilib_abi_x86(-)'
-					if 'abi_x86_32(-)?' in use_tokens:
-						use_tokens[use_tokens.index('abi_x86_32(-)?')] = 'multilib_abi_x86(-)?'
-					use_tokens.extend(multilib_flags)
-					x = Atom(x.unevaluated_atom.without_use +
-						"[%s]" % (",".join(use_tokens)))
-					x = x.evaluate_conditionals(myuse)
-			if not repoman and x.cp in mysettings.get("NO_AUTO_FLAG", "").split():
-				if x.unevaluated_atom.use is None:
-					use_tokens = []
-				else:
-					use_tokens = list(x.unevaluated_atom.use.tokens)
-				if 'abi_x86_64' in use_tokens:
-					use_tokens.remove('abi_x86_64')
-				if 'abi_x86_64(-)' in use_tokens:
-					use_tokens.remove('abi_x86_64(-)')
-				if 'abi_x86_64(-)?' in use_tokens:
-					use_tokens.remove('abi_x86_64(-)?')
-				if 'abi_x86_32' in use_tokens:
-					use_tokens.remove('abi_x86_32')
-				if 'abi_x86_32(-)' in use_tokens:
-					use_tokens.remove('abi_x86_32(-)')
-				if 'abi_x86_32(-)?' in use_tokens:
-					use_tokens.remove('abi_x86_32(-)?')
-				if use_tokens:
-					x = Atom(x.unevaluated_atom.without_use +
-						"[%s]" % (",".join(use_tokens)))
-				else:
-					x = x.unevaluated_atom.without_use
-				x = x.evaluate_conditionals(myuse)
-		mykey = x.cp
-		if not mykey.startswith("virtual/"):
-			newsplit.append(x)
-			if atom_graph is not None:
-				atom_graph.add((x, id(x)), graph_parent)
-			continue
+            if not repoman and x.cp not in mysettings.get("NO_AUTO_FLAG", "").split():
+                multilib_flags = []
+                for multilib_abis in mysettings.get("MULTILIB_ABIS", '').split():
+                    multilib_flag = 'multilib_abi_' + multilib_abis
+                    if x.unevaluated_atom.use is None or \
+                        x.unevaluated_atom.use.conditional is None or \
+                        multilib_flag not in x.unevaluated_atom.use.conditional.enabled:
+                        multilib_flags.append(multilib_flag + '?')
+                if multilib_flags:
+                    if x.unevaluated_atom.use is None:
+                        use_tokens = []
+                    else:
+                        use_tokens = list(x.unevaluated_atom.use.tokens)
+                    if 'abi_x86_64' in use_tokens:
+                        use_tokens[use_tokens.index('abi_x86_64')] = 'multilib_abi_amd64'
+                    if 'abi_x86_64(-)' in use_tokens:
+                        use_tokens[use_tokens.index('abi_x86_64(-)')] = 'multilib_abi_amd64(-)'
+                    if 'abi_x86_64(-)?' in use_tokens:
+                        use_tokens[use_tokens.index('abi_x86_64(-)?')] = 'multilib_abi_amd64(-)?'
+                    if 'abi_x86_32' in use_tokens:
+                        use_tokens[use_tokens.index('abi_x86_32')] = 'multilib_abi_x86'
+                    if 'abi_x86_32(-)' in use_tokens:
+                        use_tokens[use_tokens.index('abi_x86_32(-)')] = 'multilib_abi_x86(-)'
+                    if 'abi_x86_32(-)?' in use_tokens:
+                        use_tokens[use_tokens.index('abi_x86_32(-)?')] = 'multilib_abi_x86(-)?'
+                    use_tokens.extend(multilib_flags)
+                    x = Atom(x.unevaluated_atom.without_use +
+                        "[%s]" % (",".join(use_tokens)))
+                    x = x.evaluate_conditionals(myuse)
+            if not repoman and x.cp in mysettings.get("NO_AUTO_FLAG", "").split():
+                if x.unevaluated_atom.use is None:
+                    use_tokens = []
+                else:
+                    use_tokens = list(x.unevaluated_atom.use.tokens)
+                if 'abi_x86_64' in use_tokens:
+                    use_tokens.remove('abi_x86_64')
+                if 'abi_x86_64(-)' in use_tokens:
+                    use_tokens.remove('abi_x86_64(-)')
+                if 'abi_x86_64(-)?' in use_tokens:
+                    use_tokens.remove('abi_x86_64(-)?')
+                if 'abi_x86_32' in use_tokens:
+                    use_tokens.remove('abi_x86_32')
+                if 'abi_x86_32(-)' in use_tokens:
+                    use_tokens.remove('abi_x86_32(-)')
+                if 'abi_x86_32(-)?' in use_tokens:
+                    use_tokens.remove('abi_x86_32(-)?')
+                if use_tokens:
+                    x = Atom(x.unevaluated_atom.without_use +
+                        "[%s]" % (",".join(use_tokens)))
+                else:
+                    x = x.unevaluated_atom.without_use
+                x = x.evaluate_conditionals(myuse)
+        mykey = x.cp
+        if not mykey.startswith("virtual/"):
+            newsplit.append(x)
+            if atom_graph is not None:
+                atom_graph.add((x, id(x)), graph_parent)
+            continue
 
         mykey = x.cp
         if not mykey.startswith("virtual/"):
