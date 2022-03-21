@@ -2324,8 +2324,8 @@ class config:
         iuse_implicit.add("bootstrap")
 
         if 'force-multilib' in self.features:
-			for multilib_abis in self.get('MULTILIB_ABIS', '').split():
-				iuse_implicit.add("multilib_abi_" + multilib_abis)
+            for multilib_abis in self.get('MULTILIB_ABIS', '').split():
+            iuse_implicit.add("multilib_abi_" + multilib_abis)
 
         return iuse_implicit
 
