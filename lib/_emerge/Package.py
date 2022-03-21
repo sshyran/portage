@@ -140,12 +140,12 @@ class Package(Task):
             implicit_match = db._iuse_implicit_cnstr(self.cpv, self._metadata)
         else:
             implicit_match = db._repoman_iuse_implicit_cnstr(self.cpv, self._metadata)
-		if 'force-multilib' in self.root_config.settings.features:
-			iuse = self._metadata["IUSE"]
-			for multilib_abis in self.root_config.settings.get("MULTILIB_ABIS", '').split():
-				iuse += " multilib_abi_" + multilib_abis
-			iuse += " abiwrapper"
-			self._metadata["IUSE"] = iuse
+        if 'force-multilib' in self.root_config.settings.features:
+            iuse = self._metadata["IUSE"]
+            for multilib_abis in self.root_config.settings.get("MULTILIB_ABIS", '').split():
+                iuse += " multilib_abi_" + multilib_abis
+            iuse += " abiwrapper"
+            self._metadata["IUSE"] = iuse
         usealiases = self.root_config.settings._use_manager.getUseAliases(self)
         self.iuse = self._iuse(
             self, self._metadata["IUSE"].split(), implicit_match, usealiases, self.eapi
