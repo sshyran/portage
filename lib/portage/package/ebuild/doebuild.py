@@ -2497,10 +2497,10 @@ def _post_src_install_write_metadata(settings):
 
     for k in metadata_keys:
         v = settings.configdict["pkg"].get(k)
-		if "force-multilib" in settings.features:
-			v = v + " abiwrapper"
-			for i in settings.get('MULTILIB_ABIS').split():
-				v = v + " multilib_abi_" + i
+        if "force-multilib" in settings.features:
+            v = v + " abiwrapper"
+            for i in settings.get('MULTILIB_ABIS').split():
+                v = v + " multilib_abi_" + i
         if v is not None:
             write_atomic(os.path.join(build_info_dir, k), v + "\n")
 
