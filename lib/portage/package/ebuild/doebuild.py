@@ -118,6 +118,7 @@ from portage.util.futures import asyncio
 from portage.util.futures.executor.fork import ForkExecutor
 from portage.util.path import first_existing
 from portage.util.socks5 import get_socks5_proxy
+from portage.util._dyn_libs.dyn_libs import check_dyn_libs_inconsistent
 from portage.versions import _pkgsplit
 from _emerge.BinpkgEnvExtractor import BinpkgEnvExtractor
 from _emerge.EbuildBuildDir import EbuildBuildDir
@@ -125,7 +126,6 @@ from _emerge.EbuildPhase import EbuildPhase
 from _emerge.EbuildSpawnProcess import EbuildSpawnProcess
 from _emerge.Package import Package
 from _emerge.RootConfig import RootConfig
-
 
 _unsandboxed_phases = frozenset(
     [
@@ -2359,7 +2359,10 @@ def _check_build_log(mysettings, out=None):
     setuptools_warn = set()
     setuptools_warn_re = re.compile(r".*\/setuptools\/.*: .*Warning: (.*)")
     # skip useless version normalization warnings
-    setuptools_warn_ignore_re = [re.compile(r"Normalizing .*")]
+    setuptools_warn_ignore_re = [
+        re.compile(r"Normalizing .*"),
+        re.compile(r"setup.py install is deprecated"),
+    ]
 
     def _eerror(lines):
         for line in lines:
@@ -3102,6 +3105,16 @@ def _post_src_install_soname_symlinks(mysettings, out):
             errors="strict",
         ) as f:
             f.write(soname_deps.provides)
+    else:
+        if check_dyn_libs_inconsistent(image_dir, soname_deps.provides):
+            self._writemsg_level(
+                colorize(
+                    "BAD",
+                    "!!! Error! Installing dynamic libraries (.so) with blank PROVIDES!",
+                ),
+                noiselevel=-1,
+                level=logging.ERROR,
+            )
 
     if unrecognized_elf_files:
         qa_msg = ["QA Notice: Unrecognized ELF file(s):"]

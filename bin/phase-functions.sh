@@ -316,10 +316,10 @@ __dyn_clean() {
 			"$PORTAGE_BUILDDIR"/.{configured*,compiled*,tested*,packaged*,instprepped} \
 			"$PORTAGE_BUILDDIR"/.abi \
 			"$PORTAGE_BUILDDIR"/.die_hooks \
-			"$PORTAGE_BUILDDIR"/.ipc_{in,out,lock} \
 			"$PORTAGE_BUILDDIR"/.exit_status
 
-		rm -rf "${PORTAGE_BUILDDIR}"/{build-info,abi-code}
+		rm -rf "${PORTAGE_BUILDDIR}"/{build-info,abi-code} \
+			"${PORTAGE_BUILDDIR}/.ipc"
 		rm -rf "${WORKDIR}"
 		rm -f "${PORTAGE_BUILDDIR}/files"
 	fi

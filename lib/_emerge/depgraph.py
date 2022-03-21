@@ -4806,21 +4806,6 @@ class depgraph:
                     if len(non_virtual_cps) == 1:
                         installed_cp_set = non_virtual_cps
 
-                if len(expanded_atoms) > 1 and len(installed_cp_set) == 1:
-                    installed_cp = next(iter(installed_cp_set))
-                    for atom in expanded_atoms:
-                        if atom.cp == installed_cp:
-                            available = False
-                            for pkg in self._iter_match_pkgs_any(
-                                root_config, atom.without_use, onlydeps=onlydeps
-                            ):
-                                if not pkg.installed:
-                                    available = True
-                                    break
-                            if available:
-                                expanded_atoms = [atom]
-                                break
-
                 # If a non-virtual package and one or more virtual packages
                 # are in expanded_atoms, use the non-virtual package.
                 if len(expanded_atoms) > 1:
@@ -7303,6 +7288,7 @@ class depgraph:
         rebuilt_binaries = "rebuilt_binaries" in self._dynamic_config.myparams
         usepkg = "--usepkg" in self._frozen_config.myopts
         usepkgonly = "--usepkgonly" in self._frozen_config.myopts
+        usepkg_exclude_live = "--usepkg-exclude-live" in self._frozen_config.myopts
         empty = "empty" in self._dynamic_config.myparams
         selective = "selective" in self._dynamic_config.myparams
         reinstall = False
@@ -7378,6 +7364,17 @@ class depgraph:
                         )
                     ):
                         break
+
+                    # We can choose not to install a live package from using binary
+                    # cache by disabling it with option --usepkg-exclude-live in the
+                    # emerge call.
+                    if (
+                        usepkg_exclude_live
+                        and built
+                        and not installed
+                        and "live" in pkg._metadata.get("PROPERTIES", "").split()
+                    ):
+                        continue
 
                     useoldpkg = useoldpkg_atoms.findAtomForPackage(
                         pkg, modified_use=self._pkg_use_enabled(pkg)
