@@ -1194,13 +1194,13 @@ class config:
                 # correct for evaluation of !test? conditionals in RESTRICT.
                 self.regenerate()
 
-			if 'force-multilib' in self.features:
-				#add multilib_abi internally to list of USE_EXPANDed vars
-				self["USE_EXPAND"] = "MULTILIB_ABI" + " " + self.get("USE_EXPAND", "")
-				self.backup_changes("USE_EXPAND")
-				default_abi = self.configdict["defaults"].get('DEFAULT_ABI', '').strip()
-				if default_abi:
-					self.configdict["defaults"]["USE"] = self.configdict["defaults"].get("USE", "") + " multilib_abi_" + default_abi
+            if 'force-multilib' in self.features:
+                #add multilib_abi internally to list of USE_EXPANDed vars
+                self["USE_EXPAND"] = "MULTILIB_ABI" + " " + self.get("USE_EXPAND", "")
+                self.backup_changes("USE_EXPAND")
+                default_abi = self.configdict["defaults"].get('DEFAULT_ABI', '').strip()
+                if default_abi:
+                    self.configdict["defaults"]["USE"] = self.configdict["defaults"].get("USE", "") + " multilib_abi_" + default_abi
 
             if unprivileged:
                 self.features.add("unprivileged")
