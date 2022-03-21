@@ -321,7 +321,7 @@ __dyn_clean() {
 
 		rm -rf "${PORTAGE_BUILDDIR}"/{build-info,abi-code}
 		rm -rf "${WORKDIR}"
-		rm -rf "${PORTAGE_BUILDDIR}/files"
+		rm -f "${PORTAGE_BUILDDIR}/files"
 	fi
 
 	if [ -f "${PORTAGE_BUILDDIR}/.unpacked" ]; then
