@@ -483,9 +483,16 @@ def _prepare_fake_filesdir(settings):
     portage.util.ensure_dirs(filesdir, mode=0o755)
 
     # Copy files from real directory to ebuild directory (without metadata).
-    if os.path.isdir(real_filesdir):
-        shutil.copytree(
-            real_filesdir, filesdir, copy_function=copyfile, dirs_exist_ok=True
+    if os.path.isdir(real_filesdir) and not os.path.isdir(filesdir):
+        shutil.copytree(real_filesdir, filesdir, copy_function=copyfile)
+        apply_recursive_permissions(
+            filesdir,
+            uid=portage_uid,
+            gid=portage_gid,
+            dirmode=0o750,
+            dirmask=0,
+            filemode=0o640,
+            filemask=0,
         )
 
 
